@@ -1,18 +1,34 @@
 "use client"
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation';
 
-export default function CreatePost() {
+export default function CreatePost({ params }: { params: { id: string } }) {
+    const router = useRouter()
     const { data: session } = useSession();
     const user = session?.user
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [link, setLink] = useState('');
 
+
+    useEffect(()=>{
+        const fetchDoc =async () => {
+            const response = await fetch(`http://localhost:8080/api/posts/${params.id}`)
+            const res_data : Doc = await response.json()
+            console.log("fetchDoc",res_data);
+            setTitle(res_data.title)
+            setContent(res_data.content)
+            setLink(res_data.link)
+        }
+        fetchDoc()        
+    },[params.id, session])
+
+
     const handleSubmit = async (e : FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const response = await fetch('http://localhost:8080/api/posts', {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -29,42 +45,47 @@ export default function CreatePost() {
     };
 
     return (
-<div className="container mx-auto max-w-2xl mt-10 px-6 py-8 bg-white shadow-lg rounded-lg">
-    <h2 className="text-2xl font-bold text-gray-800 mb-6">Create a New Doc</h2>
-    <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">Title:</label>
-            <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none  focus:border-zinc-400"
-            />
-        </div>
-        <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">Content:</label>
-            <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none  focus:border-zinc-400"
-                rows={4}
-            />
-        </div>
-        <div>
-            <label className="block text-gray-700 text-sm font-medium mb-2">Link:</label>
-            <input
-                type="url"
-                value={link}
-                onChange={(e) => setLink(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none  focus:border-zinc-400"
-            />
-        </div>
-        <button type="submit" className="w-full px-4 py-2 text-white  bg-zinc-600 rounded-md focus:bg-zinc-700 focus:outline-none">Create Post</button>
-    </form>
-</div>
 
+        <div className=' flex flex-nowrap'>
+            <div className="container w-1/4 h-screen bg-white ">
+                <div className=' m-2 border  bg-gray-50'>
+                    <div className=' text-white bg-zinc-700'>
+                    <h2 className=" font-bold  text-center ">Detail</h2>
+                    </div>                   
+                    <div className=' m-3 min-h-[300px] bg-white'>                       
+                        <div>
+                            <div className=' m-1'>
+                                Title: {title}
+                            </div>                       
+                            <div className=' py-1 px-3'>
+                                {content} 
+                            </div>                            
+                        </div>                  
+                                        
+                    </div>     
+                    <div className='w-full flex flex-nowrap justify-center'>
+                        <button type="submit" className="   m-3  px-4 py-2 text-white  bg-pink-900 focus:bg-zinc-700 focus:outline-none">Delete Post</button>
+                        <button type="submit" className="   m-3  px-4 py-2 text-white  bg-zinc-600  focus:bg-zinc-700 focus:outline-none">Update Post</button>
+                    </div>         
+                    
+                </div>               
+            </div>
+            <div className="w-1/2  border   h-screen mt-2">
+                <div className=' bg-zinc-700 text-white font-bold text-center'>
+                    docs
+                </div>
+                {link && (
+                    <iframe
+                        src={link}
+                        title="Preview"
+                        width="100%"
+                        height="100%"
+                        className=' scale-100 origin-top-left '
+                    ></iframe>
+                )}
+            </div>
+        </div>
+        
 
     );
 }

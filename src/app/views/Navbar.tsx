@@ -3,7 +3,7 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 export default function Navbar() {
-    const pathname = usePathname();
+    const pathname = usePathname();   
     const menu = [
         {href: '/views/docs', clickedIcon : 'docs', icon: 'docs'}
     ]        

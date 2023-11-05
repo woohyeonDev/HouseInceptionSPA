@@ -30,7 +30,7 @@ export default function ViewsLayout({ children }: { children: React.ReactNode })
         saveUser();        
     },[session])    
     return(
-        <div className="mx-[200px]">
+        <div className="">
             <header className="w-full sticky top-0 bg-white z-10 border-b ">
                 <Navbar />
             </header>
